@@ -37,11 +37,17 @@ Se verifica si el dispositivo responde en el bus I2C mediante:
 
 Wire.beginTransmission(0x38);
 Wire.endTransmission();
+
+---
+
 2. Envío de comando de medición
 
 Se envía el comando:
 
 0xAC 0x33 0x00
+
+---
+
 3. Lectura de datos
 
 Se leen 7 bytes con la siguiente estructura:
@@ -51,11 +57,20 @@ Byte	Contenido
 1-3	Humedad RAW
 3-5	Temperatura RAW
 6	CRC
+
+---
+
 4. Cálculo de humedad
 humidity = raw * 100 / 2^20
-5. Cálculo de temperatura
+
+---
+
+6. Cálculo de temperatura
 temperature = raw * 200 / 2^20 - 50
-6. Verificación CRC8
+
+---
+
+8. Verificación CRC8
 
 Se utiliza el polinomio 0x31. Si coincide → OK, si no → FAIL.
 
