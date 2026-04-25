@@ -1,75 +1,63 @@
 # 🌡️ Monitor I2C de Temperatura y Humedad (Sensor 0x38)
 
-Proyecto en **ESP32 + PlatformIO** para leer **temperatura y humedad** desde un sensor I2C (dirección `0x38`) y mostrar los resultados por el **Monitor Serie**.
+Proyecto en ESP32 + PlatformIO para leer temperatura y humedad desde un sensor I2C (dirección 0x38) y mostrar los resultados por el Monitor Serie.
 
 ---
 
 ## 🚀 Descripción
 
-Este programa:
-
-- 🔍 Detecta si el sensor está conectado (I2C 0x38)
-- 📡 Envía comando de medición
-- 📥 Lee los datos del sensor (7 bytes)
-- 🧮 Convierte los datos RAW a:
-  - Humedad (%RH)
-  - Temperatura (°C)
-- 🧪 Verifica la integridad con **CRC8**
-- 🖥️ Muestra toda la información por Serial
+Este programa detecta si el sensor está conectado, envía el comando de medición, lee los datos (7 bytes), convierte los valores RAW a humedad (%RH) y temperatura (°C), verifica la integridad mediante CRC8 y muestra toda la información por Serial.
 
 ---
 
 ## ⚙️ Hardware necesario
 
-- 🧠 ESP32 (ej: ESP32-S3 DevKit)
-- 🌡️ Sensor de temperatura y humedad (I2C, dirección `0x38`)
-- 🔌 Conexiones:
-  - SDA → GPIO (ej: 8)
-  - SCL → GPIO (ej: 9)
-  - VCC → 3.3V
-  - GND → GND
+- ESP32 (ej: ESP32-S3 DevKit)  
+- Sensor de temperatura y humedad I2C (0x38)  
+- Conexiones:
+  - SDA → GPIO (ej: 8)  
+  - SCL → GPIO (ej: 9)  
+  - VCC → 3.3V  
+  - GND → GND  
 
 ---
 
 ## 🔌 Comunicación I2C
 
-- Dirección del sensor: `0x38`
-- Bytes leídos: `7`
-- Frecuencia de lectura: cada `2 segundos`
+Dirección del sensor: 0x38  
+Bytes leídos: 7  
+Frecuencia de lectura: cada 2 segundos  
 
 ---
 
 ## 🧠 Funcionamiento interno
 
-### 📡 1. Comprobación del sensor
-Verifica si el dispositivo responde en I2C:
+### 1. Comprobación del sensor
+Se verifica si el dispositivo responde en el bus I2C mediante:
 
-```cpp
 Wire.beginTransmission(0x38);
 Wire.endTransmission();
-📤 2. Envío de comando de medición
-0xAC 0x33 0x00
-📥 3. Lectura de datos
+2. Envío de comando de medición
 
-Se leen 7 bytes:
+Se envía el comando:
+
+0xAC 0x33 0x00
+3. Lectura de datos
+
+Se leen 7 bytes con la siguiente estructura:
 
 Byte	Contenido
 0	Estado
 1-3	Humedad RAW
 3-5	Temperatura RAW
 6	CRC
-🧮 4. Cálculo de humedad
+4. Cálculo de humedad
 humidity = raw * 100 / 2^20
-🌡️ 5. Cálculo de temperatura
+5. Cálculo de temperatura
 temperature = raw * 200 / 2^20 - 50
-🧪 6. Verificación CRC8
+6. Verificación CRC8
 
-Se usa polinomio:
-
-0x31
-
-Si el CRC coincide → ✅ OK
-Si no → ❌ FAIL
+Se utiliza el polinomio 0x31. Si coincide → OK, si no → FAIL.
 
 🖥️ Ejemplo de salida
 === Monitor sensor 0x38: Humedad y Temperatura ===
@@ -86,27 +74,31 @@ Temperatura: 23.67 C
 
 CRC: OK
 ⚠️ Posibles errores
-❌ Sensor no detectado
+
+Sensor no detectado:
+
 sensor 0x38 NO detectado
 
-✔️ Revisar conexiones SDA, SCL, VCC, GND
+→ Revisar SDA, SCL, VCC y GND
 
-❌ Error de lectura
+Error de lectura:
+
 error al leer datos del sensor
 
-✔️ Revisar cableado o timing
+→ Revisar cableado o timing
 
-❌ CRC FAIL
+CRC incorrecto:
+
 CRC FAIL
 
-✔️ Datos corruptos → interferencias o fallo I2C
+→ Posible corrupción de datos o interferencias I2C
 
 🧩 Estructura del código
-🔹 isSensorPresent() → detecta sensor
-🔹 requestMeasurement() → inicia medición
-🔹 readSensorData() → lee datos
-🔹 calculateCRC8() → valida datos
-🔹 loop() → ejecución principal cada 2s
+isSensorPresent() → detección del sensor
+requestMeasurement() → inicio de medición
+readSensorData() → lectura de datos
+calculateCRC8() → validación de datos
+loop() → ejecución cada 2 segundos
 🛠️ Configuración
 constexpr uint8_t SENSOR_ADDRESS = 0x38;
 constexpr size_t READ_BYTES = 7;
@@ -116,10 +108,4 @@ Arduino.h
 Wire.h
 🎯 Objetivo
 
-Practicar:
-
-Comunicación I2C
-Lectura de sensores digitales
-Procesado de datos RAW
-Verificación de integridad (CRC)
-Debug por Serial
+Practicar comunicación I2C, lectura de sensores digitales, procesado de datos RAW, verificación de integridad (CRC) y debug por Serial.
